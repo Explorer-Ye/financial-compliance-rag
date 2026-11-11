@@ -1,8 +1,7 @@
 package com.anthony.comprag.ingestion;
 
 import dev.langchain4j.data.document.Document;
-import dev.langchain4j.data.document.DocumentParser;
-import dev.langchain4j.data.document.parser.TextDocumentParser;
+import dev.langchain4j.data.document.Metadata;
 import dev.langchain4j.data.document.splitter.DocumentSplitters;
 import dev.langchain4j.data.embedding.Embedding;
 import dev.langchain4j.data.segment.TextSegment;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -29,6 +27,7 @@ public class CorpusIngestService {
     private static final int SEGMENT_MAX_CHARS = 300;
     private static final int SEGMENT_OVERLAP_CHARS = 30;
     private static final String CORPUS_FILE_EXTENSION = ".txt";
+    private static final String METADATA_FILE_NAME = "file_name";
 
     private final EmbeddingModel embeddingModel;
     private final EmbeddingStore<TextSegment> embeddingStore;
@@ -65,9 +64,11 @@ public class CorpusIngestService {
     }
 
     private Document parse(Path file) {
-        DocumentParser parser = new TextDocumentParser();
-        try (InputStream in = Files.newInputStream(file)) {
-            return parser.parse(in);
+        try {
+            String text = Files.readString(file);
+            // 文件名写入元数据——切片器会把它传播到每个切片，检索时用它做引用溯源
+            Metadata metadata = new Metadata().put(METADATA_FILE_NAME, file.getFileName().toString());
+            return Document.from(text, metadata);
         } catch (IOException e) {
             throw new IllegalStateException("语料解析失败: " + file, e);
         }
