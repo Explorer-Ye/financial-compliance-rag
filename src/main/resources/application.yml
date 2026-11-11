@@ -3,4 +3,7 @@ corpus:
 
 app:
   embedding:
-    provider: local      # local=本地BGE；后续升级 api（智谱/DashScope）
+    provider: local      # local=本地BGE（离线免key） | api=智谱embedding-3（需环境变量 ZHIPU_API_KEY + 账户余额）
+    api:
+      base-url: https://open.bigmodel.cn/api/paas/v4
+      model: embedding-3
