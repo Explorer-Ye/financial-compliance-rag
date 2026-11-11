@@ -1,0 +1,6 @@
+corpus:
+  dir: ./corpus          # 语料目录：所有 .txt 会被加载入库
+
+app:
+  embedding:
+    provider: local      # local=本地BGE；后续升级 api（智谱/DashScope）
